@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="no">
+
+<head>
+  <meta charset="UTF-8">
+  <title>ASP.NET Core 2.0 og TypeScript</title>
+  <link href="node_modules/remark-bekk/dist/bekk.css" type="text/css" rel="stylesheet">
+
+</head>
+
+<body class="bekk-black">
+  <textarea id="source">
+
+class: front-page
+
+# ASP.NET Core 2.0 - En ny hverdag
+
+## 
+
+Geir Sagberg
+
+NNUG Trondheim - September 2017
+
+---
+
+# Agenda
+
+- Historie
+- ASP.NET vs ASP.NET Core
+- ASP.NET Core 2.0
+- Kom i gang
+  - Konfigurasjon
+  - Logging
+- Avansert
+  - Middleware
+  - Feature Folders
+  - Mediator & Pipeline
+
+---
+
+class: center middle
+
+# TypeScript i 2017 - Kommet for å bli
+
+---
+
+# Agenda
+
+- Historie
+- ASP.NET vs ASP.NET Core
+- ASP.NET Core 2.0
+- Kom i gang
+  - Konfigurasjon
+  - Logging
+- Avansert
+  - Middleware
+  - Feature Folders
+  - Mediator & Pipeline
+
+---
+
+# React
+
+.center.appGraph[
+  .mermaid[graph TB
+    App["#lt;App#gt;"]-->WishList["#lt;WishList#gt;"]
+    WishList-->wish1["#lt;Wish 1#gt;"]
+    WishList-->wish2["#lt;Wish 2#gt;"]
+    App-->Chat["#lt;Chat#gt;"]
+    Chat-->message1["#lt;Message 1#gt;"]
+    Chat-->message2["#lt;Message 2#gt;"]
+  ]
+]
+
+---
+
+class: center middle
+
+# Redux
+
+???
+
+- Dan Abramov
+- Immutable store
+- State + action = new state
+
+---
+
+# Redux
+
+.center.appGraph[
+  .mermaid[graph LR
+    state-->reducer
+    action-->reducer
+    reducer-->newState
+  ]
+]
+
+---
+
+# Redux
+
+```
+import { createStore } from 'redux'
+
+function reducer (state = [], action) {
+  switch (action.type) {
+    case 'ADD_WISH':
+      return [...state, action.wish]
+  }
+  return state
+}
+
+const store = createStore(reducer)
+
+store.dispatch({
+  type: 'ADD_WISH',
+  wish: { id: 1, title: 'New car' }
+})
+```
+
+---
+
+class: split-50
+
+# Redux
+
+.column[
+```
+import { createStore, combineReducers } 
+  from 'redux'
+
+function wishes (state = [], action) {
+  switch (action.type) {
+    case 'ADD_WISH':
+      return [...state, action.wish]
+  }
+  return state
+}
+
+function messages (state = [], action) {
+  switch (action.type) {
+    case 'ADD_MESSAGE':
+      return [...state, action.message]
+  }
+  return state
+}
+```
+]
+
+.column[
+```
+const reducer = combineReducers({
+  wishes,
+  messages
+})
+
+const store = createStore(reducer)
+
+store.dispatch({
+  type: 'ADD_WISH',
+  wish: { id: 1, title: 'New car' }
+})
+
+store.dispatch({
+  type: 'ADD_MESSAGE',
+  message: { id: 1, text: 'Hello' }
+})
+```
+]
+
+---
+
+# Redux
+
+.center.appGraph[
+  .mermaid[graph TB
+    store-->wishes
+    wishes-->wish1["{id: 1, title: 'New Car'}"]
+    wishes-->wish2["{id: 2, title: 'LEGO'}"]
+    store-->messages
+    messages-->message1["{id: 1, text: 'Hello'}"]
+    messages-->message2["{id: 2, text: 'Hi there'}"]
+  ]
+]
+
+---
+
+class: center middle
+
+# Redux-Thunk
+
+---
+
+# Redux-Thunk
+
+```
+// store.js
+import { createStore, applyMiddleware } from 'redux'
+import thunk from 'redux-thunk'
+import reducer from './reducer'
+
+const enhancer = applyMiddleware(thunk)
+const store = createStore(reducer, enhancer)
+export default store
+```
+
+```
+// actions.js
+export function loadData (wishListId) {
+  return async function (dispatch) {
+    const data = await getJson('/api/wishes/' + wishListId)
+    dispatch({
+      type: 'DATA_LOADED',
+      data
+    })
+  }
+}
+```
+
+---
+
+class: middle, center
+
+# react-redux
+
+---
+
+class: split-50
+
+# React-Redux
+
+.column[
+```
+import React from 'react'
+import { render } from 'react-dom'
+import { Provider, connect } from 'react-redux'
+
+import WishList from './components/WishList'
+import store from './store'
+import * as actions from './actions'
+
+const mapToProps = state => ({
+  wishes: state.wishes,
+  wishListId: state.wishListId
+})
+
+const decorate = connect(mapToProps, actions)
+const App = decorate(WishList)
+
+render(
+  <Provider store={store}>
+    <App />
+  </Provider>, document.getElementById('app'))
+```
+]
+
+.column[
+```
+/// WishList.js
+class WishList extends React.Component {
+  componentDidMount () {
+    this.props.loadData(this.props.wishListId)
+  }
+  render () {
+    return (
+      <ul>
+        {this.props.wishes.map(wish => (
+          <Wish wish={wish} key={wish.id} />
+        ))}
+      </ul>
+    )
+  }
+}
+export default WishList
+```
+]
+
+---
+
+class: split-50
+
+# React-Redux
+
+.columns.appGraph[
+.column.center[
+
+  ## React
+
+  .mermaid[graph TB
+    App["#lt;App#gt;"]-->WishList["#lt;WishList#gt;"]
+    App-->Chat["#lt;Chat#gt;"]
+  ]
+]
+
+.column.center[
+
+  ## Redux
+
+  .mermaid[graph TB
+    store-->wishes
+    store-->messages
+  ]
+]
+]
+
+---
+
+class: center middle
+
+# Demo: Gaver
+
+---
+
+class: center middle
+
+# SignalR
+
+???
+
+- Abstraksjon for .NET
+- WebSockets
+- ServerSent Events
+- Long polling
+- Tilsvarende socket.io
+- Alpha for ASP.NET Core
+- Kommer med ASP.NET Core 1.2 i 2017
+
+---
+
+class: center middle
+
+![SignalR](images/signalr.png)
+
+https://www.asp.net/signalr/overview/getting-started/introduction-to-signalr
+
+---
+
+# SignalR
+
+.mermaid[
+sequenceDiagram
+  Alice->>Server: Subscribe
+  Server-->>Alice: Users: 1
+  Bob->>Server: Subscribe
+  Server-->>Bob: Users: 2
+  Server-->>Alice: Users: 2
+  Alice->>Server: Unsubscribe
+  Server-->>Bob: Users: 1
+]
+
+---
+
+class: center middle
+
+# Live updates
+
+???
+
+- Endringer brukere gjør skal vises hos andre brukere
+- Fungerer med enhver klient-side teknologi med single state og enveis dataflyt
+- Sikkert også med Socket.io
+
+---
+
+# Live updates
+
+## Server
+1. Sett opp SignalR
+1. Lag en hub med server-metode for å registrere klienter
+1. Definér klient-metoder for å si fra om endringer
+1. Kall klient-metodene når data endres
+
+## Klient
+1. Inkludér SignalR-script
+1. Lytt på klient-metoder
+1. Registrer klient via server-metode 
+1. Last data på nytt ved endringer
+
+---
+
+# Live updates - Server
+
+```xml
+// NuGet.config
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <packageSources>
+    <clear />
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+    <add key="aspnetmaster"
+      value="https://dotnet.myget.org/F/aspnetcore-master/api/v3/index.json" />
+  </packageSources>
+</configuration>
+```
+
+```json
+// project.json
+{
+  dependencies: {
+    ...
+    "Microsoft.AspNetCore.SignalR.Server": "0.1.0",
+    "Microsoft.AspNetCore.WebSockets.Server": "0.1.0",
+  }
+}
+```
+
+---
+
+# Live updates - Server
+
+```csharp
+public class Startup {
+  public void ConfigureServices(IServiceCollection services) {
+    services.AddSignalR(options => { options.Hubs.EnableDetailedErrors = true; });
+  }
+  public void Configure(IApplicationBuilder app) {
+    app.UseWebSockets();
+    app.UseSignalR();
+  }
+}
+```
+
+```csharp
+public class ListHub : Hub<IListHubClient> {
+  public void Subscribe(int wishListId) {
+    Groups.Add(Context.ConnectionId, $"List-{wishListId}");
+  }
+}
+public interface IListHubClient {
+  void Refresh();
+}
+```
+
+---
+
+# Live updates - Server
+
+```csharp
+public class ClientNotifier {
+  private readonly IHubContext<ListHub, IListHubClient> hub;
+
+  public ClientNotifier(IConnectionManager signalRManager) {
+    hub = signalRManager.GetHubContext<ListHub, IListHubClient>();
+  }
+
+  public void RefreshData(int wishListId) {
+    hub.Clients.Group($"List-{wishListId}").Refresh();
+  }
+}
+```
+
+---
+
+# Live updates - Klient
+
+```bash
+$ yarn add ms-signalr-client
+```
+```
+// App.js
+import 'ms-signalr-client'
+```
+```
+// actions.js
+export function subscribeList (wishListId) { 
+  return async function (dispatch) {
+    const connection = $.hubConnection()
+    connection.logging = true
+    const listHub = connection.createHubProxy('ListHub')
+    listHub.on('refresh', () => dispatch(loadData(wishListId)))
+    await connection.start()
+    await listHub.invoke('subscribe', wishListId)
+    console.log('Subscribed to wish list: ' + wishListId)
+  }
+}
+```
+
+---
+
+class: center middle
+
+# Demo: Live updates
+
+---
+
+# Neste steg
+
+- Økt granularitet
+- Spare data
+- Mer nøyaktige oppdateringer
+- Fra pull til push
+- SignalR kan erstatte Web API
+
+---
+
+class: center middle
+
+# Spørsmål?
+
+https://github.com/geirsagberg/gaver
+
+geir.sagberg@gmail.com
+
+@geirsag
+
+---
+
+class: center middle
+
+# Takk for meg!
+
+
+  </textarea>
+  <script src="node_modules/remark-bekk/vendor/remark.min.js" type="text/javascript"></script>
+  <script src="node_modules/mermaid/dist/mermaid.min.js"></script>
+  <link type="text/css" rel="stylesheet" href="node_modules/mermaid/dist/mermaid.forest.css">
+  <script>
+    var slideshow = remark.create({
+      ratio: '16:9',
+      highlightStyle: 'monokai',
+      highlightLanguage: 'javascript',
+      navigation: {
+        scroll: false
+      }
+    });
+    mermaid.initialize({
+      startOnLoad: false,
+      cloneCssStyles: false
+    });
+    function initMermaid(s) {
+      var diagrams = document.querySelectorAll('.mermaid');
+      var i;
+      for(i=0;i<diagrams.length;i++){
+        if(diagrams[i].offsetWidth>0){
+          mermaid.init(undefined, diagrams[i]);
+        }
+      }
+    }
+    slideshow.on('afterShowSlide', initMermaid);
+    initMermaid(slideshow.getSlides()[slideshow.getCurrentSlideIndex()]);
+  </script>
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    .edgeLabel {
+      background: initial;
+      color: white;
+    }
+    
+    .column:first-of-type {
+      float: left
+    }
+    
+    .column:nth-of-type(2) {
+      float: right
+    }
+    
+    .split-50 .column {
+      width: 49%
+    }
+
+    .appGraph {
+      margin-top: 7rem;
+    }
+
+    .mermaid {
+      height: 100%;
+      text-align: center;
+    }
+
+    .mermaid svg {
+      max-height: 80%;
+    }
+
+    .columns {
+      display: flex;
+      align-items: center;
+    }
+
+    .columns svg {
+      max-height: 40%;
+    }
+
+    .messageText {
+      fill: #ccc;
+    }
+
+    [class^='messageLine'], .actor-line {
+      stroke: #ccc !important;
+    }
+
+    #arrowhead {
+      stroke: #ccc;
+    }
+  </style>
+</body>
+</html>
