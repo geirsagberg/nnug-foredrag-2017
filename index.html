@@ -13,7 +13,7 @@
 
 class: front-page
 
-# ASP.NET Core 2.0 - En ny hverdag
+# ASP.NET Core 2.0
 
 ## 
 
@@ -23,474 +23,81 @@ NNUG Trondheim - September 2017
 
 ---
 
-# Agenda
+# ASP.NET Core 2.0
 
-- Historie
 - ASP.NET vs ASP.NET Core
-- ASP.NET Core 2.0
-- Kom i gang
-  - Konfigurasjon
+- Hva er nytt i 2.0?
+- Demo
+  - Kom i gang
   - Logging
-- Avansert
+  - MVC
+  - Razor Pages
   - Middleware
-  - Feature Folders
-  - Mediator & Pipeline
-
----
-
-class: center middle
-
-# TypeScript i 2017 - Kommet for å bli
-
----
-
-# Agenda
-
-- Historie
-- ASP.NET vs ASP.NET Core
-- ASP.NET Core 2.0
-- Kom i gang
-  - Konfigurasjon
-  - Logging
-- Avansert
-  - Middleware
-  - Feature Folders
-  - Mediator & Pipeline
-
----
-
-# React
-
-.center.appGraph[
-  .mermaid[graph TB
-    App["#lt;App#gt;"]-->WishList["#lt;WishList#gt;"]
-    WishList-->wish1["#lt;Wish 1#gt;"]
-    WishList-->wish2["#lt;Wish 2#gt;"]
-    App-->Chat["#lt;Chat#gt;"]
-    Chat-->message1["#lt;Message 1#gt;"]
-    Chat-->message2["#lt;Message 2#gt;"]
-  ]
-]
-
----
-
-class: center middle
-
-# Redux
+  - Feature Slices
+  - API & Swagger
+  - Entity Framework Core
+  - Mediator & Pipeline?
 
 ???
 
-- Dan Abramov
-- Immutable store
-- State + action = new state
-
----
-
-# Redux
-
-.center.appGraph[
-  .mermaid[graph LR
-    state-->reducer
-    action-->reducer
-    reducer-->newState
-  ]
-]
-
----
-
-# Redux
-
-```
-import { createStore } from 'redux'
-
-function reducer (state = [], action) {
-  switch (action.type) {
-    case 'ADD_WISH':
-      return [...state, action.wish]
-  }
-  return state
-}
-
-const store = createStore(reducer)
-
-store.dispatch({
-  type: 'ADD_WISH',
-  wish: { id: 1, title: 'New car' }
-})
-```
-
----
-
-class: split-50
-
-# Redux
-
-.column[
-```
-import { createStore, combineReducers } 
-  from 'redux'
-
-function wishes (state = [], action) {
-  switch (action.type) {
-    case 'ADD_WISH':
-      return [...state, action.wish]
-  }
-  return state
-}
-
-function messages (state = [], action) {
-  switch (action.type) {
-    case 'ADD_MESSAGE':
-      return [...state, action.message]
-  }
-  return state
-}
-```
-]
-
-.column[
-```
-const reducer = combineReducers({
-  wishes,
-  messages
-})
-
-const store = createStore(reducer)
-
-store.dispatch({
-  type: 'ADD_WISH',
-  wish: { id: 1, title: 'New car' }
-})
-
-store.dispatch({
-  type: 'ADD_MESSAGE',
-  message: { id: 1, text: 'Hello' }
-})
-```
-]
-
----
-
-# Redux
-
-.center.appGraph[
-  .mermaid[graph TB
-    store-->wishes
-    wishes-->wish1["{id: 1, title: 'New Car'}"]
-    wishes-->wish2["{id: 2, title: 'LEGO'}"]
-    store-->messages
-    messages-->message1["{id: 1, text: 'Hello'}"]
-    messages-->message2["{id: 2, text: 'Hi there'}"]
-  ]
-]
+- 10 % intro
+- 40 % basics
+- 50 % advanced
 
 ---
 
 class: center middle
 
-# Redux-Thunk
-
----
-
-# Redux-Thunk
-
-```
-// store.js
-import { createStore, applyMiddleware } from 'redux'
-import thunk from 'redux-thunk'
-import reducer from './reducer'
-
-const enhancer = applyMiddleware(thunk)
-const store = createStore(reducer, enhancer)
-export default store
-```
-
-```
-// actions.js
-export function loadData (wishListId) {
-  return async function (dispatch) {
-    const data = await getJson('/api/wishes/' + wishListId)
-    dispatch({
-      type: 'DATA_LOADED',
-      data
-    })
-  }
-}
-```
-
----
-
-class: middle, center
-
-# react-redux
-
----
-
-class: split-50
-
-# React-Redux
-
-.column[
-```
-import React from 'react'
-import { render } from 'react-dom'
-import { Provider, connect } from 'react-redux'
-
-import WishList from './components/WishList'
-import store from './store'
-import * as actions from './actions'
-
-const mapToProps = state => ({
-  wishes: state.wishes,
-  wishListId: state.wishListId
-})
-
-const decorate = connect(mapToProps, actions)
-const App = decorate(WishList)
-
-render(
-  <Provider store={store}>
-    <App />
-  </Provider>, document.getElementById('app'))
-```
-]
-
-.column[
-```
-/// WishList.js
-class WishList extends React.Component {
-  componentDidMount () {
-    this.props.loadData(this.props.wishListId)
-  }
-  render () {
-    return (
-      <ul>
-        {this.props.wishes.map(wish => (
-          <Wish wish={wish} key={wish.id} />
-        ))}
-      </ul>
-    )
-  }
-}
-export default WishList
-```
-]
-
----
-
-class: split-50
-
-# React-Redux
-
-.columns.appGraph[
-.column.center[
-
-  ## React
-
-  .mermaid[graph TB
-    App["#lt;App#gt;"]-->WishList["#lt;WishList#gt;"]
-    App-->Chat["#lt;Chat#gt;"]
-  ]
-]
-
-.column.center[
-
-  ## Redux
-
-  .mermaid[graph TB
-    store-->wishes
-    store-->messages
-  ]
-]
-]
+# Demo
 
 ---
 
 class: center middle
 
-# Demo: Gaver
+# TypeScript i 2017
+
+---
+
+# TypeScript i 2017
+
+- Hvorfor TypeScript
+- Demo
+  - Visual Studio Code
+  - npm & Webpack
+  - TypeScript loader & config
+  - ASP.NET Core JavaScriptServices
+  - Hot Module Reloading
+  - React & Redux
+  - SPA
+  - Typed Form Components
 
 ---
 
 class: center middle
 
-# SignalR
-
-???
-
-- Abstraksjon for .NET
-- WebSockets
-- ServerSent Events
-- Long polling
-- Tilsvarende socket.io
-- Alpha for ASP.NET Core
-- Kommer med ASP.NET Core 1.2 i 2017
+# Demo
 
 ---
 
-class: center middle
+# Lenker
 
-![SignalR](images/signalr.png)
+ASP.NET Core 2.0:
+https://docs.microsoft.com/aspnet/core/
 
-https://www.asp.net/signalr/overview/getting-started/introduction-to-signalr
+Feature Slices for ASP.NET Core:
+https://msdn.microsoft.com/en-us/magazine/mt763233.aspx
 
----
+TypeScript Docs:
+http://www.typescriptlang.org/docs
 
-# SignalR
+TypeScript Deep Dive:
+https://basarat.gitbooks.io/typescript/
 
-.mermaid[
-sequenceDiagram
-  Alice->>Server: Subscribe
-  Server-->>Alice: Users: 1
-  Bob->>Server: Subscribe
-  Server-->>Bob: Users: 2
-  Server-->>Alice: Users: 2
-  Alice->>Server: Unsubscribe
-  Server-->>Bob: Users: 1
-]
+TypeScript og Redux:
+https://spin.atomicobject.com/2017/07/24/redux-action-pattern-typescript/
 
----
-
-class: center middle
-
-# Live updates
-
-???
-
-- Endringer brukere gjør skal vises hos andre brukere
-- Fungerer med enhver klient-side teknologi med single state og enveis dataflyt
-- Sikkert også med Socket.io
-
----
-
-# Live updates
-
-## Server
-1. Sett opp SignalR
-1. Lag en hub med server-metode for å registrere klienter
-1. Definér klient-metoder for å si fra om endringer
-1. Kall klient-metodene når data endres
-
-## Klient
-1. Inkludér SignalR-script
-1. Lytt på klient-metoder
-1. Registrer klient via server-metode 
-1. Last data på nytt ved endringer
-
----
-
-# Live updates - Server
-
-```xml
-// NuGet.config
-<?xml version="1.0" encoding="utf-8"?>
-<configuration>
-  <packageSources>
-    <clear />
-    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
-    <add key="aspnetmaster"
-      value="https://dotnet.myget.org/F/aspnetcore-master/api/v3/index.json" />
-  </packageSources>
-</configuration>
-```
-
-```json
-// project.json
-{
-  dependencies: {
-    ...
-    "Microsoft.AspNetCore.SignalR.Server": "0.1.0",
-    "Microsoft.AspNetCore.WebSockets.Server": "0.1.0",
-  }
-}
-```
-
----
-
-# Live updates - Server
-
-```csharp
-public class Startup {
-  public void ConfigureServices(IServiceCollection services) {
-    services.AddSignalR(options => { options.Hubs.EnableDetailedErrors = true; });
-  }
-  public void Configure(IApplicationBuilder app) {
-    app.UseWebSockets();
-    app.UseSignalR();
-  }
-}
-```
-
-```csharp
-public class ListHub : Hub<IListHubClient> {
-  public void Subscribe(int wishListId) {
-    Groups.Add(Context.ConnectionId, $"List-{wishListId}");
-  }
-}
-public interface IListHubClient {
-  void Refresh();
-}
-```
-
----
-
-# Live updates - Server
-
-```csharp
-public class ClientNotifier {
-  private readonly IHubContext<ListHub, IListHubClient> hub;
-
-  public ClientNotifier(IConnectionManager signalRManager) {
-    hub = signalRManager.GetHubContext<ListHub, IListHubClient>();
-  }
-
-  public void RefreshData(int wishListId) {
-    hub.Clients.Group($"List-{wishListId}").Refresh();
-  }
-}
-```
-
----
-
-# Live updates - Klient
-
-```bash
-$ yarn add ms-signalr-client
-```
-```
-// App.js
-import 'ms-signalr-client'
-```
-```
-// actions.js
-export function subscribeList (wishListId) { 
-  return async function (dispatch) {
-    const connection = $.hubConnection()
-    connection.logging = true
-    const listHub = connection.createHubProxy('ListHub')
-    listHub.on('refresh', () => dispatch(loadData(wishListId)))
-    await connection.start()
-    await listHub.invoke('subscribe', wishListId)
-    console.log('Subscribed to wish list: ' + wishListId)
-  }
-}
-```
-
----
-
-class: center middle
-
-# Demo: Live updates
-
----
-
-# Neste steg
-
-- Økt granularitet
-- Spare data
-- Mer nøyaktige oppdateringer
-- Fra pull til push
-- SignalR kan erstatte Web API
+Typed Forms:
+https://medium.com/@steida/the-boring-react-redux-forms-a15ee8a6b52b/
 
 ---
 
@@ -498,7 +105,9 @@ class: center middle
 
 # Spørsmål?
 
-https://github.com/geirsagberg/gaver
+https://github.com/geirsagberg/nnug-foredrag-2017/
+
+https://github.com/geirsagberg/CallForPapers/
 
 geir.sagberg@gmail.com
 
